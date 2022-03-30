@@ -34,7 +34,7 @@ eu2019$Country_rec<- fct_drop(eu2019$Country_rec, only = c("DE-W - Germany - Wes
 
 
 
-#### MULTI-LEVEL BINOMIAL LOGISTIC MODELS (Figures 1 and S5) ####
+#### MULTI-LEVEL BINOMIAL LOGISTIC MODELS ####
 library(moments)
 library(lme4)
 library(sjPlot)
@@ -70,7 +70,7 @@ eu2019$environ_awarness_cat[eu2019$environ_awarness >= 1] <- 1
 
 
 
-# Friendly traveling (Fig 1)
+# Friendly traveling 
 model1 <- glmer(not_friendly_travelling ~ Age + Gender + Education_mod +
                   (1 | Country_rec), data = eu2019, family = binomial, control = glmerControl(optimizer = "bobyqa"),
                 nAGQ = 10, na.action = na.exclude)
@@ -117,7 +117,7 @@ tab_model(model13, model130, digits.re = 3, digits = 3)
 
 
 
-# Less unnecesary trips (Fig 1)
+# Less unnecesary trips 
 model2 <- glmer(less_unnecesary_trips ~ Age + Gender + Education_mod +
                   (1 | Country_rec), data = eu2019, family = binomial, control = glmerControl(optimizer = "bobyqa"),
                 nAGQ = 10, na.action = na.exclude)
@@ -164,7 +164,7 @@ tab_model(model23, model230, digits.re = 3, digits = 3)
 
 
 
-# Improve public transport (Fig 1)
+# Improve public transport 
 model3 <- glmer(not_improve_pub_transport ~ Age + Gender + Education_mod +
                   (1 | Country_rec), data = eu2019, family = binomial, control = glmerControl(optimizer = "bobyqa"),
                 nAGQ = 10, na.action = na.exclude)
@@ -210,7 +210,7 @@ tab_model(model33, model330, digits.re = 3, digits = 3)
 
 
 
-# Attitude for environment and climate change (Fig S5)
+# Attitude for environment and climate change
 model4 <- glmer(environ_awarness_cat ~ Age + Gender + Education_mod +
                   (1 | Country_rec), data = eu2019, family = binomial, control = glmerControl(optimizer = "bobyqa"),
                 nAGQ = 10, na.action = na.exclude)
@@ -239,7 +239,7 @@ tab_model(model7, digits.re = 3, digits = 3)
 
 
 
-#### Mediation analysis (Fig 2) ####
+#### Mediation analysis ####
 library(lavaan)
 library(lavaanPlot)
 library(effectsize)
