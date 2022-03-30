@@ -242,6 +242,7 @@ tab_model(model7, digits.re = 3, digits = 3)
 #### Mediation analysis (Fig 2) ####
 library(lavaan)
 library(lavaanPlot)
+library(effectsize)
 
 ## Continuous variables ##
 eu2019$Protect_env_original_cont[eu2019$Protect_env_original == "Not at all important"] <- 0
@@ -297,13 +298,13 @@ eu2019$not_improve_pub_transport_cont[eu2019$not_improve_pub_transport == "Not m
 eu2019$not_improve_pub_transport_cont[eu2019$not_improve_pub_transport == "To improve public transport and reduce air pollution"] <- 1
 
 
-# Mediation models #
+# Mediation models - WITH CONTROLS #
 
 set.seed(123456)
 specmod_travelling <- '#simple mediation
-Env_aware ~ a*SES + e*Size_of_community_cont + Gender_cont + Age
+Env_aware ~ a*SES + e*Sizecomm_lat + Gender_cont + Age
 not_friendly_travelling_cont ~ b*Env_aware 
-not_friendly_travelling_cont ~ c*SES + d*Size_of_community_cont + Gender_cont + Age
+not_friendly_travelling_cont ~ c*SES + d*Sizecomm_lat + Gender_cont + Age
 
 #latent variables
 SES =~ NA*Education_mod_cont + Social_class_subjective_cont + Bills_mod_cont
@@ -325,7 +326,7 @@ total_comm:=d+(e*b)
 
 fitmod_trav <- sem(specmod_travelling, data = eu2019, se = "bootstrap", std.ov = T)
 summary(fitmod_trav, fit.measures=T, rsquare=T, ci=T)
-
+interpret(fitmod_trav)
 lavaanPlot(model = fitmod_trav, node_options = list(shape = "box", fontname = "Helvetica"), 
            edge_options = list(color = "grey"), coefs = T, covs = T, stars = "regress", 
            digits = 3)
@@ -334,9 +335,9 @@ lavaanPlot(model = fitmod_trav, node_options = list(shape = "box", fontname = "H
 
 
 specmod_less_trips <- '#simple mediation
-Env_aware ~ a*SES + e*Size_of_community_cont + Gender_cont + Age
+Env_aware ~ a*SES + e*Sizecomm_lat + Gender_cont + Age
 less_unnecesary_trips_cont ~ b*Env_aware 
-less_unnecesary_trips_cont ~ c*SES + d*Size_of_community_cont + Gender_cont + Age
+less_unnecesary_trips_cont ~ c*SES + d*Sizecomm_lat + Gender_cont + Age
 
 #latent variables
 SES =~ NA*Education_mod_cont + Social_class_subjective_cont + Bills_mod_cont
@@ -358,7 +359,7 @@ total_comm:=d+(e*b)
 
 fitmod_less_trips <- sem(specmod_less_trips, data = eu2019, se = "bootstrap", std.ov = T)
 summary(fitmod_less_trips, fit.measures=T, rsquare=T, ci=T)
-
+interpret(fitmod_less_trips)
 lavaanPlot(model = fitmod_less_trips, node_options = list(shape = "box", fontname = "Helvetica"), 
            edge_options = list(color = "grey"), coefs = T, covs = F, stars = "regress", 
            digits = 3)
@@ -367,9 +368,9 @@ lavaanPlot(model = fitmod_less_trips, node_options = list(shape = "box", fontnam
 
 
 specmod_pub_transp <- '#simple mediation
-Env_aware ~ a*SES + e*Size_of_community_cont + Gender_cont + Age
+Env_aware ~ a*SES + e*Sizecomm_lat + Gender_cont + Age
 not_improve_pub_transport_cont ~ b*Env_aware 
-not_improve_pub_transport_cont ~ c*SES + d*Size_of_community_cont + Gender_cont + Age
+not_improve_pub_transport_cont ~ c*SES + d*Sizecomm_lat + Gender_cont + Age
 
 #latent variables
 SES =~ NA*Education_mod_cont + Social_class_subjective_cont + Bills_mod_cont
@@ -391,7 +392,108 @@ total_comm:=d+(e*b)
 
 fitmod_pub_transp <- sem(specmod_pub_transp, data = eu2019, se = "bootstrap", std.ov = T)
 summary(fitmod_pub_transp, fit.measures=T, rsquare=T, ci=T)
-
+interpret(fitmod_pub_transp)
 lavaanPlot(model = fitmod_pub_transp, node_options = list(shape = "box", fontname = "Helvetica"), 
            edge_options = list(color = "grey"), coefs = T, covs = F, stars = "regress", 
            digits = 3)
+
+
+## Mediation analyses - WITHOUT CONTROLS ##
+
+set.seed(123456)
+specmod_travelling_NO_CONTROL <- '#simple mediation
+Env_aware ~ a*SES + e*Sizecomm_lat
+not_friendly_travelling_cont ~ b*Env_aware 
+not_friendly_travelling_cont ~ c*SES + d*Sizecomm_lat
+
+#latent variables
+SES =~ NA*Education_mod_cont + Social_class_subjective_cont + Bills_mod_cont
+Env_aware =~ NA*Protect_env_original_cont + Env_direct_effect_original_cont + Climate_change_original_cont
+Sizecomm_lat =~ Size_of_community_cont
+
+#covariances
+SES ~~ Sizecomm_lat
+
+#indirect effect
+ab:=a*b
+eb:=e*b
+total_ind:=ab+eb
+
+#total effects
+total_ses:=c+(a*b)
+total_comm:=d+(e*b)
+'
+
+fitmod_trav_NO_CONTROL <- sem(specmod_travelling_NO_CONTROL, data = eu2019, se = "bootstrap", std.ov = T)
+summary(fitmod_trav_NO_CONTROL, fit.measures=T, rsquare=T, ci=T)
+interpret(fitmod_trav_NO_CONTROL)
+lavaanPlot(model = fitmod_trav_NO_CONTROL, node_options = list(shape = "box", fontname = "Helvetica"), 
+           edge_options = list(color = "grey"), coefs = T, covs = T, stars = "regress", 
+           digits = 3)
+
+
+
+
+specmod_less_trips_NO_CONTROL <- '#simple mediation
+Env_aware ~ a*SES + e*Sizecomm_lat
+less_unnecesary_trips_cont ~ b*Env_aware 
+less_unnecesary_trips_cont ~ c*SES + d*Sizecomm_lat
+
+#latent variables
+SES =~ NA*Education_mod_cont + Social_class_subjective_cont + Bills_mod_cont
+Env_aware =~ NA*Protect_env_original_cont + Env_direct_effect_original_cont + Climate_change_original_cont
+Sizecomm_lat =~ Size_of_community_cont
+
+#covariances
+SES ~~ Sizecomm_lat
+
+#indirect effect
+ab:=a*b
+eb:=e*b
+total_ind:=ab+eb
+
+#total effects
+total_ses:=c+(a*b)
+total_comm:=d+(e*b)
+'
+
+fitmod_less_trips_NO_CONTROL <- sem(specmod_less_trips_NO_CONTROL, data = eu2019, se = "bootstrap", std.ov = T)
+summary(fitmod_less_trips_NO_CONTROL, fit.measures=T, rsquare=T, ci=T)
+interpret(fitmod_less_trips_NO_CONTROL)
+lavaanPlot(model = fitmod_less_trips_NO_CONTROL, node_options = list(shape = "box", fontname = "Helvetica"), 
+           edge_options = list(color = "grey"), coefs = T, covs = F, stars = "regress", 
+           digits = 3)
+
+
+
+
+specmod_pub_transp_NO_CONTROL <- '#simple mediation
+Env_aware ~ a*SES + e*Sizecomm_lat
+not_improve_pub_transport_cont ~ b*Env_aware 
+not_improve_pub_transport_cont ~ c*SES + d*Sizecomm_lat
+
+#latent variables
+SES =~ NA*Education_mod_cont + Social_class_subjective_cont + Bills_mod_cont
+Env_aware =~ NA*Protect_env_original_cont + Env_direct_effect_original_cont + Climate_change_original_cont
+Sizecomm_lat =~ Size_of_community_cont
+
+#covariances
+SES ~~ Sizecomm_lat
+
+#indirect effect
+ab:=a*b
+eb:=e*b
+total_ind:=ab+eb
+
+#total effects
+total_ses:=c+(a*b)
+total_comm:=d+(e*b)
+'
+
+fitmod_pub_transp_NO_CONTROL <- sem(specmod_pub_transp_NO_CONTROL, data = eu2019, se = "bootstrap", std.ov = T)
+summary(fitmod_pub_transp_NO_CONTROL, fit.measures=T, rsquare=T, ci=T)
+interpret(fitmod_pub_transp_NO_CONTROL)
+lavaanPlot(model = fitmod_pub_transp_NO_CONTROL, node_options = list(shape = "box", fontname = "Helvetica"), 
+           edge_options = list(color = "grey"), coefs = T, covs = F, stars = "regress", 
+           digits = 3)
+
